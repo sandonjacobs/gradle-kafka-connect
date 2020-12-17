@@ -1,0 +1,24 @@
+# No log files
+*.log
+
+#IntelliJ stuff
+*.iml
+
+# Gradle Build Directories
+build/
+gradle_cache/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Ignore all hidden files, except this one
+.*
+!.gitignore
+!.github/
+
+# Visual Studio Code build directory
+bin
+out
