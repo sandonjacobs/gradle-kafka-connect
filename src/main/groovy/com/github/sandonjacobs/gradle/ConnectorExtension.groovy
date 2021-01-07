@@ -47,6 +47,6 @@ class ConnectorExtension {
      */
     String getConnectorsPath() {
 
-        return (connectorSourcePath ?: "${sourceBase}/${connectorSourceName}")
+        return (connectorSourcePath ?: "${sourceBase}/${connectorSourceName}/${configEnv}")
     }
 }
