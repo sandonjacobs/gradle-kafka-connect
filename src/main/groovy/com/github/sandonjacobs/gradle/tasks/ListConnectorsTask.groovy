@@ -3,6 +3,7 @@ package com.github.sandonjacobs.gradle.tasks
 import com.github.sandonjacobs.gradle.ConnectRest
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
 @Slf4j
@@ -15,8 +16,16 @@ class ListConnectorsTask extends DefaultTask {
 
     @TaskAction
     def listConnectors() {
-        new ConnectRest().listConnectors().each {c ->
-            println "$c"
+        def rest = new ConnectRest()
+        rest.setRestUrl(project.extensions.kafkaConnect.connectEndpoint)
+        def result = rest.listConnectors()
+
+        if (result.status.toInteger() != 200) {
+            throw new GradleException("List Connectors FAILED: ${result.toMapString()}")
+        }
+
+        result.body.toString().split(",").toList().forEach {
+            b -> println(b)
         }
     }
 }

@@ -9,10 +9,7 @@ import kong.unirest.Unirest
 @Slf4j
 class ConnectRest {
 
-    /**
-     * The base REST endpoint of kafka connect API. Defaults to 'http://localhost:8083'.
-     */
-    String restUrl = 'http://localhost:8083'
+    String restUrl
 
     def execCreateConnector(String payload, Map properties) {
 
