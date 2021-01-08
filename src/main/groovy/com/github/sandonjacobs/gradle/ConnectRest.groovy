@@ -12,15 +12,11 @@ class ConnectRest {
     String restUrl
 
     def execCreateConnector(String payload, Map properties) {
-
+        log.debug("creating connector\n$payload")
     }
 
     def deleteConnector(String name) {
-
-    }
-
-    def connectorExists(String name) {
-
+        log.debug("deleting connector\n$name")
     }
 
     def listConnectors() {
