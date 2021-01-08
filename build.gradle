@@ -16,6 +16,7 @@ githubRelease {
     repo = 'gradle-kafka-connect'
     tagName = "v${version}"
     releaseAssets = fileTree(dir: buildDir, includes: ["**/*${version}*", "**/*${version}*.jar"]).toList()
+    targetCommitish = 'main'
 }
 
 repositories {
