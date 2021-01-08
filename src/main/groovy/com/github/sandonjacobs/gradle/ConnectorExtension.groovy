@@ -30,15 +30,7 @@ class ConnectorExtension {
      */
     String connectorSourcePath
 
-    /**
-     * The path of the connectors configuration file. A relative path will be resolved in the project directory, while absolute paths are resolved absolutely. Default: 'connectors.config'.
-     */
-    String configPath = 'connectors.config'
-
-    /**
-     * The environment to pass when configuring {@link #configPath}. This uses the ConfigSlurper concept of default values with environmental overloads. Default: 'development'.
-     */
-    String configEnv = 'development'
+    String defaultConnectorSubDirectory = 'development'
 
     /**
      * Provides the path for Pipeline source files.
@@ -47,6 +39,6 @@ class ConnectorExtension {
      */
     String getConnectorsPath() {
 
-        return (connectorSourcePath ?: "${sourceBase}/${connectorSourceName}/${configEnv}")
+        return (connectorSourcePath ?: "${sourceBase}/${connectorSourceName}")
     }
 }

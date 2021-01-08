@@ -6,6 +6,7 @@ import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
@@ -15,12 +16,18 @@ class SubmitConnectorsTask extends DefaultTask {
     ConnectRest rest
 
     @Input
+    @Optional
     @Option(option = "connector-endpoint", description = "override the connector config endpoint here.")
-    String connectorEndpoint
+    String connectorEndpoint = project.extensions.kafkaConnect.connectEndpoint
 
     @Input
+    @Optional
     @Option(option = "print-only", description = "only prints the connector configs, if present do not post to endpoint")
     boolean dryRunFlag
+
+    @Input
+    @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
+    String connectorSubDir = project.extensions.kafkaConnect.defaultConnectorSubDirectory
 
 
     SubmitConnectorsTask() {
@@ -32,18 +39,22 @@ class SubmitConnectorsTask extends DefaultTask {
 
     @TaskAction
     def loadConnectors() {
-        logger.debug("input param connect-endpoint => {}", connectorEndpoint)
-        def endpoint = connectorEndpoint != null ? connectorEndpoint : project.extensions.kafkaConnect.connectEndpoint
-        logger.debug("using {} as connector endpoint url", endpoint)
+//        logger.debug("input param connect-endpoint => {}", connectorEndpoint)
         rest = new ConnectRest()
-        rest.setRestUrl(endpoint)
+        rest.setRestUrl(connectorEndpoint)
 
-        def listing = new File(project.extensions.kafkaConnect.getConnectorsPath())
+        def pathBase = project.extensions.kafkaConnect.getConnectorsPath()
+        def connectorPath = "$pathBase/$connectorSubDir"
+
+        logger.debug("connectorPath => {}", connectorPath)
+        def listing = new File(connectorPath)
         listing.eachFile { f ->
             logger.debug(f.name)
-            def jsonnetOutput = jsonnet(f).toString()
-            def name = new JsonSlurper().parseText(jsonnetOutput).name
-            processPayload(name, jsonnetOutput)
+            if (!f.isDirectory() && f.name.endsWith(".jsonnet")) {
+                def jsonnetOutput = jsonnet(f).toString()
+                def name = new JsonSlurper().parseText(jsonnetOutput).name
+                processPayload(name, jsonnetOutput)
+            }
         }
     }
 
