@@ -9,6 +9,7 @@ plugins {
 }
 
 group 'com.github.sandonjacobs'
+version '0.1.0'
 
 scmVersion {
     tag {
@@ -17,8 +18,6 @@ scmVersion {
     }
     ignoreUncommittedChanges = true
 }
-
-project.version = scmVersion.version
 
 githubRelease {
     token = getProperty('github.token')
@@ -62,6 +61,8 @@ gradlePlugin {
 pluginBundle {
     website = 'https://github.com/sandonjacobs/gradle-kafka-connect'
     vcsUrl = 'https://github.com/sandonjacobs/gradle-kafka-connect'
+    description = 'Gradle Plugin to Manage and Deploy Kafka Connector Configurations'
+    tags = ['kafka', 'confluent', 'connect']
 
     plugins {
         kafkaConnect {
