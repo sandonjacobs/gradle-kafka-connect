@@ -3,7 +3,6 @@ plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
     id "com.gradle.plugin-publish" version "0.12.0"
-    id 'pl.allegro.tech.build.axion-release' version '1.12.1'
     id "com.github.breadmoirai.github-release" version "2.2.12"
     id "com.github.ben-manes.versions" version "0.29.0"
 }
@@ -11,17 +10,9 @@ plugins {
 group 'com.github.sandonjacobs'
 version '0.1.0'
 
-scmVersion {
-    tag {
-        prefix = 'v'
-        versionSeparator = ''
-    }
-    ignoreUncommittedChanges = true
-}
-
 githubRelease {
     token = getProperty('github.token')
-    owner = 'Sandon Jacobs'
+    owner = 'sandonjacobs'
     repo = 'gradle-kafka-connect'
     tagName = "v${version}"
     releaseAssets = fileTree(dir: buildDir, includes: ["**/*${version}*", "**/*${version}*.jar"]).toList()
