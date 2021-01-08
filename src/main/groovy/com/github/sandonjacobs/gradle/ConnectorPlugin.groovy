@@ -1,7 +1,7 @@
 package com.github.sandonjacobs.gradle
 
 import com.github.sandonjacobs.gradle.tasks.ListConnectorsTask
-import com.github.sandonjacobs.gradle.tasks.PrintConnectorsTask
+
 import com.github.sandonjacobs.gradle.tasks.SubmitConnectorsTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -21,10 +21,6 @@ class ConnectorPlugin implements Plugin<Project> {
             String taskGroup = project.extensions.kafkaConnect.taskGroup
 
             project.task('listConnectors', type: ListConnectorsTask) {
-                group taskGroup
-            }
-
-            project.task('printConnectors', type: PrintConnectorsTask) {
                 group taskGroup
             }
 
