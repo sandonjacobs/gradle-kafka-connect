@@ -30,10 +30,7 @@ class ConnectRest {
 
         return result
     }
-
-    def deleteConnector(String name) {
-        log.debug("deleting connector\n$name")
-    }
+    
 
     def listConnectors() {
         def path = "$restUrl/connectors"
