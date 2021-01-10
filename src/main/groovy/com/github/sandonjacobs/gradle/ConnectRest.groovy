@@ -13,6 +13,22 @@ class ConnectRest {
 
     def execCreateConnector(String payload, Map properties) {
         log.debug("creating connector\n$payload")
+        def path = "$restUrl/connectors"
+
+        HttpResponse<String> response = Unirest.post(path)
+                .header("Content-Type", "application/json")
+                .header("Cache-Control", "no-cache")
+                .body(payload)
+                .asJson()
+
+        log.debug("unirest response : ${response.dump()}")
+
+        def result = [
+                status: response.status,
+                statusText : response.statusText
+        ]
+
+        return result
     }
 
     def deleteConnector(String name) {
