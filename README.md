@@ -110,6 +110,7 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 | --- | --- |
 | connectorEndpoint | override the connector configuration endpoint url. |
 | connectorSubDir | specify a subdirectory to run with, defaults to the value of `defaultConnectorSubDirectory` specified in the plugin closure.
+| jsonnet-tla-str-args | Support for additional jsonnet args, maps to `--tla-str <var>[=<val>]`. |
 
 #### Task Help
 ```shell
@@ -139,4 +140,44 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 #### Print Only the Configurations in a Provided Subdirectory
 ```shell
 > ./gradlew submitConnectors --print-only --connector-subdir prod
+```
+
+#### Print Only the Configurations in a Provided Subdirectory with tla-str Replacements
+
+Suppose we have a connector that contains some value we want to bind late in the lifecycle - perhaps something only known
+by the CI/CD environment or an environment variable.
+
+Utilize the `tla-str` functionality when defining the jsonnet templates and then use the `jsonnet-tla-str-args` parameter
+of this task to pass the values of those `tla-str` args to the template. If there are multiple `key=value` pairs (mapping to 
+multiple arguments in the jsonnet tla function), add them as pipe-delimited pairs. Here's the example:
+
+Suppose we have a template such as:
+
+```jsonnet
+local lib = import '../base-tla.libsonnet';
+
+function(value1, value2) {
+  "name": "my name is",
+  "config": lib.Config("sample-with-tla", value1, value2),
+}
+```
+
+Add the top-level function lives in the `base-tla.libsonnet` file referenced above, as such:
+
+```jsonnet
+{
+  Config(name, value1, value2): {
+      "name": name,
+      "s3.region": "us-east-1",
+      "something.of.value1": value1,
+      "something.of.value2": value2,
+  },
+}
+
+```
+
+Executing the task below will pass these values to the templates and functions, replacing the variables in the resulting json:
+
+```shell
+> ./gradlew submitConnectors --print-only --connector-subdir prod --jsonnet-tla-str-args='value1=the value|value2=something else'
 ```
