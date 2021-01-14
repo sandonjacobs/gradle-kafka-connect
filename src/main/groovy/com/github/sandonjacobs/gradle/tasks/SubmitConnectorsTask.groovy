@@ -29,6 +29,10 @@ class SubmitConnectorsTask extends DefaultTask {
     @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
     String connectorSubDir = project.extensions.kafkaConnect.defaultConnectorSubDirectory
 
+    @Input
+    @Optional
+    @Option(option = "jsonnet-tla-str-args", description = "Additional jsonnet args, maps to --tla-str <var>[=<val>].")
+    String tlaStringArgs
 
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
@@ -73,7 +77,10 @@ class SubmitConnectorsTask extends DefaultTask {
 
     def jsonnet(File f) {
         def sout = new StringBuilder(), serr = new StringBuilder()
-        def proc = "jsonnet ${f.path}".execute()
+        def command = "jsonnet ${f.path} ${addTlaArgs()}"
+        print(command)
+
+        def proc = command.execute()
         proc.consumeProcessOutput(sout, serr)
         proc.waitForOrKill(1000)
         logger.debug "out> $sout\nerr> $serr"
@@ -84,6 +91,18 @@ class SubmitConnectorsTask extends DefaultTask {
         else {
             return sout
         }
+    }
+
+    def addTlaArgs() {
+        def prefix = "--tla-str"
+        if (tlaStringArgs != null && tlaStringArgs.length() > 0) {
+            def args = tlaStringArgs.tokenize('|')
+
+            def result = args.inject { acc, val -> "--tla-str $acc --tla-str $val" }
+            println("**** POST INJECT *******" + result)
+            return result
+        }
+        else return ""
     }
 
 
