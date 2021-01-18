@@ -43,7 +43,7 @@ class SubmitConnectorsTask extends DefaultTask {
 
     @TaskAction
     def loadConnectors() {
-//        logger.debug("input param connect-endpoint => {}", connectorEndpoint)
+        logger.debug("input param connect-endpoint => {}", connectorEndpoint)
         rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
 
@@ -71,7 +71,7 @@ class SubmitConnectorsTask extends DefaultTask {
         }
         else {
             println payload
-            rest.execCreateConnector(payload, [:]) // todo: temp empty map
+            rest.execCreateConnector(name, payload, [:]) // todo: temp empty map
         }
     }
 
