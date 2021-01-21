@@ -11,14 +11,13 @@ class ConnectRest {
 
     String restUrl
 
-    def execCreateConnector(String name, String payload, int httpTimeout, Map properties) {
+    def execCreateConnector(String name, String payload, Map properties) {
         log.debug("creating connector => $name\n$payload")
         def path = "$restUrl/connectors/$name/config"
 
         HttpResponse<String> response = Unirest.put(path)
                 .header("Content-Type", "application/json")
                 .header("Cache-Control", "no-cache")
-                .connectTimeout(httpTimeout)
                 .body(payload)
                 .asJson()
 

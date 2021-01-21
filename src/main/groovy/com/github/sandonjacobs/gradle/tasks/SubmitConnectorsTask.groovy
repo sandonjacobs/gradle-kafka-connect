@@ -13,6 +13,8 @@ import org.gradle.api.tasks.options.Option
 @Slf4j
 class SubmitConnectorsTask extends DefaultTask {
 
+    ConnectRest rest
+
     @Input
     @Optional
     @Option(option = "connector-endpoint", description = "override the connector config endpoint here.")
@@ -21,7 +23,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @Input
     @Optional
     @Option(option = "print-only", description = "only prints the connector configs, if present do not post to endpoint")
-    Boolean dryRunFlag = false
+    boolean dryRunFlag
 
     @Input
     @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
@@ -42,7 +44,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @TaskAction
     def loadConnectors() {
         logger.debug("input param connect-endpoint => {}", connectorEndpoint)
-        def rest = new ConnectRest()
+        rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
 
         def pathBase = project.extensions.kafkaConnect.getConnectorsPath()
@@ -61,9 +63,6 @@ class SubmitConnectorsTask extends DefaultTask {
     }
 
     def processPayload(String name, String payload) {
-        def rest = new ConnectRest()
-        rest.setRestUrl(connectorEndpoint)
-
         println "Connector Name => $name"
         println "Connect Endpoint => ${rest.getRestUrl()}"
         if (dryRunFlag) {
@@ -72,7 +71,7 @@ class SubmitConnectorsTask extends DefaultTask {
         }
         else {
             println payload
-            rest.execCreateConnector(name, payload, 10000, [:]) // todo: temp empty map
+            rest.execCreateConnector(name, payload, [:]) // todo: temp empty map
         }
     }
 
