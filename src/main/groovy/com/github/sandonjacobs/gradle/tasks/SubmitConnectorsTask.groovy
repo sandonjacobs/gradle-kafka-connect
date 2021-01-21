@@ -32,11 +32,6 @@ class SubmitConnectorsTask extends DefaultTask {
     @Option(option = "jsonnet-tla-str-args", description = "Additional jsonnet args, maps to --tla-str <var>[=<val>].")
     String tlaStringArgs
 
-    @Input
-    @Optional
-    @Option(option = "http-timeout", description = "Timeout (in ms) for http calls to connector endpoint")
-    String httpTimeout = "${project.extensions.kafkaConnect.defaultHttpTimeoutMs}"
-
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
         description = "Load Kafka Connector Configuration files."
@@ -77,7 +72,7 @@ class SubmitConnectorsTask extends DefaultTask {
         }
         else {
             println payload
-            rest.execCreateConnector(name, payload, Integer.parseInt(httpTimeout), [:]) // todo: temp empty map
+            rest.execCreateConnector(name, payload, 10000, [:]) // todo: temp empty map
         }
     }
 
