@@ -72,6 +72,7 @@ kafkaConnect {
 | sourceBase | From root of project, the base of the `connectorSourceName` directory. | `src/main` |
 | defaultConnectorSubDirectory | Used to determine which subdirectory to process. I typically use this to specify an enviroment (dev, qa, prod, etc...).  | `development`|
 | connectorSourcePath | This will override the use of `connectorSourceName` and `sourceBase` if set. | |
+| defaultHttpTimeoutMs | Default timeout (in ms) for http calls to kafka connect API. | 5000 |
 
 ### listConnectors
 
@@ -111,6 +112,7 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 | connectorEndpoint | override the connector configuration endpoint url. |
 | connectorSubDir | specify a subdirectory to run with, defaults to the value of `defaultConnectorSubDirectory` specified in the plugin closure.
 | jsonnet-tla-str-args | Support for additional jsonnet args, maps to `--tla-str <var>[=<val>]`. |
+| http-timeout | Used to override the `defaultHttpTimeoutMs` for the project. |
 
 #### Task Help
 ```shell

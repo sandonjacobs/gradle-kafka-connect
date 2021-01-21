@@ -13,8 +13,6 @@ import org.gradle.api.tasks.options.Option
 @Slf4j
 class SubmitConnectorsTask extends DefaultTask {
 
-    ConnectRest rest
-
     @Input
     @Optional
     @Option(option = "connector-endpoint", description = "override the connector config endpoint here.")
@@ -23,7 +21,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @Input
     @Optional
     @Option(option = "print-only", description = "only prints the connector configs, if present do not post to endpoint")
-    boolean dryRunFlag
+    Boolean dryRunFlag = false
 
     @Input
     @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
@@ -33,6 +31,11 @@ class SubmitConnectorsTask extends DefaultTask {
     @Optional
     @Option(option = "jsonnet-tla-str-args", description = "Additional jsonnet args, maps to --tla-str <var>[=<val>].")
     String tlaStringArgs
+
+    @Input
+    @Optional
+    @Option(option = "http-timeout", description = "Timeout (in ms) for http calls to connector endpoint")
+    String httpTimeout = "${project.extensions.kafkaConnect.defaultHttpTimeoutMs}"
 
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
@@ -44,7 +47,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @TaskAction
     def loadConnectors() {
         logger.debug("input param connect-endpoint => {}", connectorEndpoint)
-        rest = new ConnectRest()
+        def rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
 
         def pathBase = project.extensions.kafkaConnect.getConnectorsPath()
@@ -63,6 +66,9 @@ class SubmitConnectorsTask extends DefaultTask {
     }
 
     def processPayload(String name, String payload) {
+        def rest = new ConnectRest()
+        rest.setRestUrl(connectorEndpoint)
+
         println "Connector Name => $name"
         println "Connect Endpoint => ${rest.getRestUrl()}"
         if (dryRunFlag) {
@@ -71,7 +77,7 @@ class SubmitConnectorsTask extends DefaultTask {
         }
         else {
             println payload
-            rest.execCreateConnector(name, payload, [:]) // todo: temp empty map
+            rest.execCreateConnector(name, payload, Integer.parseInt(httpTimeout), [:]) // todo: temp empty map
         }
     }
 

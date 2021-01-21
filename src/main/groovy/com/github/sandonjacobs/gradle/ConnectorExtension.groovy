@@ -33,6 +33,11 @@ class ConnectorExtension {
     String defaultConnectorSubDirectory = 'development'
 
     /**
+     * Default timeout (in ms) for http calls to kafka connect API. Defaults to `5000 ms`.
+     */
+    Integer defaultHttpTimeoutMs = 5000
+
+    /**
      * Provides the path for Pipeline source files.
      *
      * @return The full path of the Pipeline source files. Uses {@link #connectorSourcePath} first if it exists, and if it doesn't (the default), then it uses {@link #sourceBase} and {@link #connectorSourceName}.
