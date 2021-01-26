@@ -1,6 +1,7 @@
 package com.github.sandonjacobs.gradle.tasks
 
 import com.github.sandonjacobs.gradle.ConnectRest
+import com.github.sandonjacobs.gradle.utils.JsonnetUtils
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.gradle.api.DefaultTask
@@ -77,7 +78,7 @@ class SubmitConnectorsTask extends DefaultTask {
 
     def jsonnet(File f) {
         def sout = new StringBuilder(), serr = new StringBuilder()
-        def command = "jsonnet ${f.path} ${addTlaArgs()}"
+        def command = "jsonnet ${f.path} ${JsonnetUtils.createTlaArgs(tlaStringArgs)}"
         print(command)
 
         def proc = command.execute()
@@ -92,18 +93,5 @@ class SubmitConnectorsTask extends DefaultTask {
             return sout
         }
     }
-
-    def addTlaArgs() {
-        def prefix = "--tla-str"
-        if (tlaStringArgs != null && tlaStringArgs.length() > 0) {
-            def args = tlaStringArgs.tokenize('|')
-
-            def result = args.inject { acc, val -> "--tla-str $acc --tla-str $val" }
-            println("**** POST INJECT *******" + result)
-            return result
-        }
-        else return ""
-    }
-
 
 }
