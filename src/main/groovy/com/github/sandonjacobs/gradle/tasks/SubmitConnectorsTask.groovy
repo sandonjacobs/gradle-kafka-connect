@@ -14,8 +14,6 @@ import org.gradle.api.tasks.options.Option
 @Slf4j
 class SubmitConnectorsTask extends DefaultTask {
 
-    ConnectRest rest
-
     @Input
     @Optional
     @Option(option = "connector-endpoint", description = "override the connector config endpoint here.")
@@ -24,7 +22,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @Input
     @Optional
     @Option(option = "print-only", description = "only prints the connector configs, if present do not post to endpoint")
-    boolean dryRunFlag
+    Boolean dryRunFlag
 
     @Input
     @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
@@ -45,7 +43,7 @@ class SubmitConnectorsTask extends DefaultTask {
     @TaskAction
     def loadConnectors() {
         logger.debug("input param connect-endpoint => {}", connectorEndpoint)
-        rest = new ConnectRest()
+        ConnectRest rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
 
         def pathBase = project.extensions.kafkaConnect.getConnectorsPath()
@@ -58,12 +56,12 @@ class SubmitConnectorsTask extends DefaultTask {
             if (!f.isDirectory() && f.name.endsWith(".jsonnet")) {
                 def jsonnetOutput = jsonnet(f).toString()
                 def name = new JsonSlurper().parseText(jsonnetOutput).name
-                processPayload(name, jsonnetOutput)
+                processPayload(rest, name, jsonnetOutput)
             }
         }
     }
 
-    def processPayload(String name, String payload) {
+    def processPayload(ConnectRest rest, String name, String payload) {
         println "Connector Name => $name"
         println "Connect Endpoint => ${rest.getRestUrl()}"
         if (dryRunFlag) {
@@ -71,7 +69,7 @@ class SubmitConnectorsTask extends DefaultTask {
             println payload
         }
         else {
-            println payload
+            logger.info(payload)
             rest.execCreateConnector(name, payload, [:]) // todo: temp empty map
         }
     }

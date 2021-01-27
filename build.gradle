@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'com.github.sandonjacobs'
-version '0.6.0-SNAPSHOT'
+version '0.6.2'
 
 githubRelease {
     token = getProperty('github.token')
