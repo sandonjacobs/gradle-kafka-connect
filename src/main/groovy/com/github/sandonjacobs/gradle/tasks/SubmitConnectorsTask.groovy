@@ -57,6 +57,7 @@ class SubmitConnectorsTask extends DefaultTask {
                 def jsonnetOutput = jsonnet(f).toString()
                 def name = new JsonSlurper().parseText(jsonnetOutput).name
                 processPayload(rest, name, jsonnetOutput)
+                sleep(3000)
             }
         }
     }
