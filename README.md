@@ -111,6 +111,7 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 | connectorEndpoint | override the connector configuration endpoint url. |
 | connectorSubDir | specify a subdirectory to run with, defaults to the value of `defaultConnectorSubDirectory` specified in the plugin closure.
 | jsonnet-tla-str-args | Support for additional jsonnet args, maps to `--tla-str <var>[=<val>]`. |
+| connector | Optionally, specify the name of a SINGLE jsonnet file (minus the extension) to submit from the `connectorSubDir`. |
 
 #### Task Help
 ```shell
@@ -136,6 +137,13 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 ```shell
 > ./gradlew submitConnectors --connector-subdir prod
 ```
+
+#### Process ONLY the foo.jsonnet Configuration in a Provided Subdirectory
+```shell
+> ./gradlew submitConnectors --connector-subdir prod --connector foo
+```
+| Note: If the file `foo.jsonnet` does not exist in the `prod` subdirectory, the task will fail! |
+| ---|
 
 #### Print Only the Configurations in a Provided Subdirectory
 ```shell
