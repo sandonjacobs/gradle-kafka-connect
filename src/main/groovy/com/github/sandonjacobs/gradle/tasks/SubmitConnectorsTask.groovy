@@ -33,6 +33,11 @@ class SubmitConnectorsTask extends DefaultTask {
     @Option(option = "jsonnet-tla-str-args", description = "Additional jsonnet args, maps to --tla-str <var>[=<val>].")
     String tlaStringArgs
 
+    @Input
+    @Optional
+    @Option(option = "connector", description = "If set, only process this specified connector jsonnet file in the connectorSubDir.")
+    String connectorName
+
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
         description = "Load Kafka Connector Configuration files."
@@ -50,16 +55,26 @@ class SubmitConnectorsTask extends DefaultTask {
         def connectorPath = "$pathBase/$connectorSubDir"
 
         logger.debug("connectorPath => {}", connectorPath)
-        def listing = new File(connectorPath)
-        listing.eachFile { f ->
-            logger.debug(f.name)
-            if (!f.isDirectory() && f.name.endsWith(".jsonnet")) {
-                def jsonnetOutput = jsonnet(f).toString()
-                def name = new JsonSlurper().parseText(jsonnetOutput).name
-                processPayload(rest, name, jsonnetOutput)
-                sleep(3000)
+        if (connectorName) {
+            logger.info("processing connector {} from directory {}", connectorName, connectorPath)
+            def file = new File("${connectorPath}/${connectorName}.jsonnet")
+            processFile(rest, file)
+        } else {
+            def listing = new File(connectorPath)
+            listing.eachFile { f ->
+                logger.debug(f.name)
+                if (!f.isDirectory() && f.name.endsWith(".jsonnet")) {
+                    logger.debug(f.name)
+                    processFile(rest, f)
+                }
             }
         }
+    }
+
+    def processFile(ConnectRest rest, File f) {
+        def jsonnetOutput = jsonnet(f).toString()
+        def name = new JsonSlurper().parseText(jsonnetOutput).name
+        processPayload(rest, name, jsonnetOutput)
     }
 
     def processPayload(ConnectRest rest, String name, String payload) {
@@ -70,6 +85,7 @@ class SubmitConnectorsTask extends DefaultTask {
             println payload
         }
         else {
+            sleep(3000)
             logger.info(payload)
             rest.execCreateConnector(name, payload, [:]) // todo: temp empty map
         }
