@@ -16,4 +16,19 @@ class JsonnetUtils {
         }
         else return ""
     }
+
+    /**
+     * Splits the args variable on the delimiter value to build ext-code-file arg.
+     *
+     * @param path
+     * @param args
+     * @return
+     */
+    static def createExtCodeFileArg(path, args) {
+        if (args) {
+            def tokens = args.split("=")
+            return "--ext-code-file ${tokens[0]}=$path/${tokens[1]}"
+        }
+        else return ""
+    }
 }

@@ -25,8 +25,9 @@ class SubmitConnectorsTask extends DefaultTask {
     Boolean dryRunFlag
 
     @Input
+    @Optional
     @Option(option = "connector-subdir", description = "Only project a given subdirectory of the `sourceBase/connectorSourceName` directory")
-    String connectorSubDir = project.extensions.kafkaConnect.defaultConnectorSubDirectory
+    String connectorSubDir
 
     @Input
     @Optional
@@ -35,8 +36,16 @@ class SubmitConnectorsTask extends DefaultTask {
 
     @Input
     @Optional
+    @Option(option = "jsonnet-ext-code-file", description = "Maps to --ext-code-file in jsonnet.")
+    String extCodeFile
+
+    @Input
+    @Optional
     @Option(option = "connector", description = "If set, only process this specified connector jsonnet file in the connectorSubDir.")
     String connectorName
+
+    String pathBase = project.extensions.kafkaConnect.getConnectorsPath()
+    String connectorPath = connectorSubDir ? "$pathBase/$connectorSubDir" : pathBase
 
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
@@ -50,9 +59,6 @@ class SubmitConnectorsTask extends DefaultTask {
         logger.debug("input param connect-endpoint => {}", connectorEndpoint)
         ConnectRest rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
-
-        def pathBase = project.extensions.kafkaConnect.getConnectorsPath()
-        def connectorPath = "$pathBase/$connectorSubDir"
 
         logger.debug("connectorPath => {}", connectorPath)
         if (connectorName) {
@@ -93,7 +99,9 @@ class SubmitConnectorsTask extends DefaultTask {
 
     def jsonnet(File f) {
         def sout = new StringBuilder(), serr = new StringBuilder()
-        def command = "jsonnet ${f.path} ${JsonnetUtils.createTlaArgs(tlaStringArgs)}"
+
+        def command = "jsonnet ${f.path} ${JsonnetUtils.createExtCodeFileArg(connectorPath, extCodeFile)} " +
+                "${JsonnetUtils.createTlaArgs(tlaStringArgs)}"
         print(command)
 
         def proc = command.execute()

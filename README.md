@@ -54,7 +54,6 @@ kafkaConnect {
   connectEndpoint = 'http://localhost:8083'
   sourceBase = 'src/main'
   connectorSourceName = 'connectors'
-  defaultConnectorSubDirectory = 'development'
   // if you wanna ignore sourceBase and connectorSourceName with a directory at the root of the project...
   // connectorSourcePath = 'some-connectors'
 }
@@ -70,7 +69,6 @@ kafkaConnect {
 | connectEndpoint | HTTP url (with port) to the root of the Kafka Connect API. | http://localhost:8083 |
 | connectorSourceName | Where are the connectors to be loaded from. | `connectors` |
 | sourceBase | From root of project, the base of the `connectorSourceName` directory. | `src/main` |
-| defaultConnectorSubDirectory | Used to determine which subdirectory to process. I typically use this to specify an enviroment (dev, qa, prod, etc...).  | `development`|
 | connectorSourcePath | This will override the use of `connectorSourceName` and `sourceBase` if set. | |
 
 ### listConnectors
@@ -109,8 +107,9 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 | Parameter | Description |
 | --- | --- |
 | connectorEndpoint | override the connector configuration endpoint url. |
-| connectorSubDir | specify a subdirectory to run with, defaults to the value of `defaultConnectorSubDirectory` specified in the plugin closure.
+| connectorSubDir | (optional) specify a subdirectory to run with. If provided, is appended to the `connectorSourcePath`, as defined in the `getConnectorsPath()` function.|
 | jsonnet-tla-str-args | Support for additional jsonnet args, maps to `--tla-str <var>[=<val>]`. |
+| jsonnet-ext-code-file | Support for additional jsonnet ext code file inclusion, maps to `--ext-code-file <var>[=<val>]`. |
 | connector | Optionally, specify the name of a SINGLE jsonnet file (minus the extension) to submit from the `connectorSubDir`. |
 
 #### Task Help
@@ -142,13 +141,29 @@ using the [Connectors API](https://docs.confluent.io/platform/current/connect/re
 ```shell
 > ./gradlew submitConnectors --connector-subdir prod --connector foo
 ```
-| Note: If the file `foo.jsonnet` does not exist in the `prod` subdirectory, the task will fail! |
-| ---|
+  > **Note**: If the file `foo.jsonnet` does not exist in the `prod` subdirectory, the task will fail!
 
 #### Print Only the Configurations in a Provided Subdirectory
 ```shell
 > ./gradlew submitConnectors --print-only --connector-subdir prod
 ```
+
+#### Using ext-code-file
+Given a jsonnet file named `foo.jsonnet` in the `prod` subdirectory.
+And that jsonnet file references a jsonnet `extVar` named `env` as follows:
+
+```jsonnet
+local environmentVars = std.extVar('env');
+```
+
+Use this command to generate the connector `foo` with the environment info from `qa.libsonnet`
+
+```shell
+> ./gradlew submitConnectors --connector-subdir prod --connector foo --jsonnet-ext-code-file env=qa.libsonnet
+```
+
+> **Note**: If the file `qa.libsonnet` does not exist in the `prod` subdirectory, the task will fail!
+
 
 #### Print Only the Configurations in a Provided Subdirectory with tla-str Replacements
 

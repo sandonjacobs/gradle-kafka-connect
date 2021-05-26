@@ -30,8 +30,6 @@ class ConnectorExtension {
      */
     String connectorSourcePath
 
-    String defaultConnectorSubDirectory = 'development'
-
     /**
      * Provides the path for Pipeline source files.
      *
