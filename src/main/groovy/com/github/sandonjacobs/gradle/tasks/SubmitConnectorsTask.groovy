@@ -44,8 +44,8 @@ class SubmitConnectorsTask extends DefaultTask {
     @Option(option = "connector", description = "If set, only process this specified connector jsonnet file in the connectorSubDir.")
     String connectorName
 
-    String pathBase = project.extensions.kafkaConnect.getConnectorsPath()
-    String connectorPath = connectorSubDir ? "$pathBase/$connectorSubDir" : pathBase
+    private String pathBase = project.extensions.kafkaConnect.getConnectorsPath()
+    private String connectorPath = connectorSubDir ? "$pathBase/$connectorSubDir" : pathBase
 
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
