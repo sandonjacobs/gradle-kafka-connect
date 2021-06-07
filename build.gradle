@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'com.github.sandonjacobs'
-version '0.8.0'
+version '0.8.1'
 
 githubRelease {
     token = getProperty('github.token')
@@ -20,7 +20,7 @@ githubRelease {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven {
         url "https://plugins.gradle.org/m2/"
     }

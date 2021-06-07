@@ -44,9 +44,6 @@ class SubmitConnectorsTask extends DefaultTask {
     @Option(option = "connector", description = "If set, only process this specified connector jsonnet file in the connectorSubDir.")
     String connectorName
 
-    private String pathBase = project.extensions.kafkaConnect.getConnectorsPath()
-    private String connectorPath = connectorSubDir ? "$pathBase/$connectorSubDir" : pathBase
-
     SubmitConnectorsTask() {
         group = project.extensions.kafkaConnect.taskGroup
         description = "Load Kafka Connector Configuration files."
@@ -56,29 +53,41 @@ class SubmitConnectorsTask extends DefaultTask {
 
     @TaskAction
     def loadConnectors() {
+
+        String pathBase = project.extensions.kafkaConnect.getConnectorsPath()
+        logger.debug("connector sub dir  => {}", connectorSubDir)
+        String connectorPath = connectorSubDir ? pathBase + '/' + connectorSubDir : pathBase
+
         logger.debug("input param connect-endpoint => {}", connectorEndpoint)
         ConnectRest rest = new ConnectRest()
         rest.setRestUrl(connectorEndpoint)
 
-        logger.debug("connectorPath => {}", connectorPath)
+        logger.debug("******************************")
+        logger.debug("pathBae            => {}", pathBase)
+        logger.debug("connectorPath      => {}", connectorPath)
+        logger.debug("connector sub dir  => {}", connectorSubDir)
+        logger.debug("connector name     => {}", connectorName)
+        logger.debug("******************************")
+        
         if (connectorName) {
             logger.info("processing connector {} from directory {}", connectorName, connectorPath)
             def file = new File("${connectorPath}/${connectorName}.jsonnet")
-            processFile(rest, file)
+            processFile(rest, connectorPath, file)
         } else {
+            logger.info("processing connectors from directory {}", connectorPath)
             def listing = new File(connectorPath)
             listing.eachFile { f ->
                 logger.debug(f.name)
                 if (!f.isDirectory() && f.name.endsWith(".jsonnet")) {
                     logger.debug(f.name)
-                    processFile(rest, f)
+                    processFile(rest, connectorPath, f)
                 }
             }
         }
     }
 
-    def processFile(ConnectRest rest, File f) {
-        def jsonnetOutput = jsonnet(f).toString()
+    def processFile(ConnectRest rest, String connectorPath, File f) {
+        def jsonnetOutput = jsonnet(f, connectorPath).toString()
         def name = new JsonSlurper().parseText(jsonnetOutput).name
         processPayload(rest, name, jsonnetOutput)
     }
@@ -97,7 +106,7 @@ class SubmitConnectorsTask extends DefaultTask {
         }
     }
 
-    def jsonnet(File f) {
+    def jsonnet(File f, String connectorPath) {
         def sout = new StringBuilder(), serr = new StringBuilder()
 
         def command = "jsonnet ${f.path} ${JsonnetUtils.createExtCodeFileArg(connectorPath, extCodeFile)} " +
